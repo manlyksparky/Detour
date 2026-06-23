@@ -1,4 +1,4 @@
-# LondonDetour — Product Requirements
+# Detour — Product Requirements
 
 **Status:** Draft v0.1
 **Owner:** Victor
@@ -9,7 +9,7 @@
 
 ## 1. Overview
 
-People walk past extraordinary history every day without noticing it. LondonDetour makes the invisible legible: it shows the Wikipedia-worthy places within a short walk and invites a *detour*. The London focus gives the project a concrete, dense, personally-meaningful playground — central London has an exceptionally high density of geotagged articles, which makes the core loop satisfying from the first load.
+People walk past extraordinary history every day without noticing it. Detour makes the invisible legible: it shows the Wikipedia-worthy places within a short walk and invites a *detour*. The London focus gives the project a concrete, dense, personally-meaningful playground — central London has an exceptionally high density of geotagged articles, which makes the core loop satisfying from the first load.
 
 ## 2. Goals
 

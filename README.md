@@ -1,7 +1,7 @@
-# London Detour
+# Detour
 
 Wander London through the stories hiding around you. Drop a pin anywhere in the
-city, sweep a radius, and London Detour surfaces the Wikipedia articles for
+city, sweep a radius, and Detour surfaces the Wikipedia articles for
 everything nearby — landmarks, hidden histories, the pub a poet drank in — then
 stitches a walkable tour out of them, optionally narrated by Claude.
 

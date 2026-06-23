@@ -1,4 +1,4 @@
-# LondonDetour — Build Roadmap
+# Detour — Build Roadmap
 
 A phased plan sized for Claude Code sessions. Each task is a small, reviewable unit. Check boxes as they land and keep `CLAUDE.md` in sync.
 
@@ -57,7 +57,7 @@ A phased plan sized for Claude Code sessions. Each task is a small, reviewable u
 
 - [ ] Visual polish toward the Detour aesthetic (typography, spacing, restraint)
 - [ ] Error handling (offline, geolocation denied, empty radius)
-- [ ] OpenGraph / metadata for LondonDetour
+- [ ] OpenGraph / metadata for Detour
 - [ ] Deploy to Vercel; verify on a real phone in London
 - [ ] README screenshots/GIF
 
