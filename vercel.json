@@ -1,0 +1,8 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "env": {
+    "NEXT_PUBLIC_BASEMAP_STYLE": "https://tiles.openfreemap.org/styles/dark"
+  }
+}

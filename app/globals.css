@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* ─── Custom colour palette (Tailwind v4 theme) ─────────── */
+@theme {
+  --color-detour-orange: #e05c1a;
+  --color-detour-green: #1a2e1a;
+  --color-detour-green-btn: #1c3320;
+}
+
+/* ─── Design tokens ──────────────────────────────────────── */
+:root {
+  --bg: #0D1117;
+  --panel: #161B22;
+  --text: #E6EDF3;
+  --muted: #8B949E;
+  --accent: #F0A500;
+  --accent-hover: #FFC32B;
+  --border: rgba(230, 237, 243, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Leaflet overrides ──────────────────────────────────── */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ─── MapLibre overrides ─────────────────────────────────── */
+.maplibregl-ctrl-logo,
+.maplibregl-ctrl-attrib {
+  display: none !important;
+}
+
+.maplibregl-ctrl-group {
+  background: rgba(22, 27, 34, 0.92) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(230, 237, 243, 0.12) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  margin-bottom: calc(3.5rem + env(safe-area-inset-bottom) + 0.5rem) !important;
+}
+
+.maplibregl-ctrl-group button {
+  background: transparent !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid rgba(230, 237, 243, 0.1) !important;
+}
+
+.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon,
+.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+  filter: invert(60%) sepia(0%) brightness(120%) !important;
+}
+
+.maplibregl-ctrl-zoom-in:hover .maplibregl-ctrl-icon,
+.maplibregl-ctrl-zoom-out:hover .maplibregl-ctrl-icon {
+  filter: invert(100%) !important;
+}
+
+/* ─── Custom scrollbars ──────────────────────────────────── */
+.sidebar-scroll::-webkit-scrollbar { width: 4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ─── Skeleton shimmer ───────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Tour numbered map markers ─────────────────────────── */
+.tour-marker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e05c1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: default;
+  user-select: none;
+}
+
+/* ─── Tour route line ────────────────────────────────────── */
+.tour-route-line {
+  stroke-dasharray: 8, 6;
+  stroke: #3b82f6;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ─── Wikipedia article content ─────────────────────────── */
+.wiki-content p { margin-bottom: 0.75rem; line-height: 1.7; }
+.wiki-content p:last-child { margin-bottom: 0; }
+.wiki-content b { font-weight: 600; color: #111827; }
+.wiki-content i { font-style: italic; }
+.wiki-content a { color: #e05c1a; }
+.wiki-content a:hover { text-decoration: underline; }
+.wiki-content sup { display: none; }
+.wiki-content ul, .wiki-content ol { margin: 0.5rem 0 0.75rem 1.25rem; }
+.wiki-content li { margin-bottom: 0.25rem; line-height: 1.6; }
+.wiki-content table { display: none; }
+
+/* ─── Misc UI ────────────────────────────────────────────── */
+.drag-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--muted);
+  margin: 0 auto;
+  opacity: 0.5;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #F0A500;
+  border: 2px solid #0D1117;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(240, 165, 0, 0.4);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #F0A500;
+  border: 2px solid #0D1117;
+  cursor: pointer;
+}
