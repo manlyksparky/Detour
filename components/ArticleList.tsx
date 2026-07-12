@@ -205,7 +205,7 @@ interface InnerProps {
   radiusLabel: string
   radiusOpen: boolean
   setRadiusOpen: (v: boolean) => void
-  radiusRef: React.RefObject<HTMLDivElement | null>
+  radiusRef: React.RefObject<HTMLDivElement>
   radius: number
   onRadiusChange: (r: number) => void
   articles: WikiArticle[]
