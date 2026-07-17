@@ -5,12 +5,13 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Detour London — Neighbourhood Articles Near You",
+  title: "Detour",
   description:
-    "Browse nearby Wikipedia articles on a map of London. Explore spots or plan a walking tour through the city.",
+    "The path worth taking — discover all the hidden gems around any unfamiliar location.",
   openGraph: {
-    title: "Detour London",
-    description: "Discover London through Wikipedia, one neighbourhood at a time.",
+    title: "Detour",
+    description:
+      "The path worth taking — discover all the hidden gems around any unfamiliar location.",
     type: "website",
   },
 };
