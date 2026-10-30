@@ -3,8 +3,8 @@ import type { Sidequest, WikiArticle } from '@/types'
 export const SIDEQUESTS: Sidequest[] = [
   {
     id: 'hidden-histories',
-    label: 'Hidden Histories',
-    icon: '🕯️',
+    label: 'Hidden histories',
+    icon: 'flame',
     keywords: [
       'plague', 'execution', 'riot', 'battle', 'buried', 'forgotten',
       'ancient', 'medieval', 'massacre', 'cemetery', 'burial', 'gallows',
@@ -14,8 +14,8 @@ export const SIDEQUESTS: Sidequest[] = [
   },
   {
     id: 'architects-buildings',
-    label: 'Architects & Buildings',
-    icon: '🏛️',
+    label: 'Architecture',
+    icon: 'landmark',
     keywords: [
       'church', 'cathedral', 'station', 'bridge', 'tower', 'hall',
       'designed', 'listed', 'victorian', 'georgian', 'baroque', 'gothic',
@@ -25,8 +25,8 @@ export const SIDEQUESTS: Sidequest[] = [
   },
   {
     id: 'literary-cultural',
-    label: 'Literary & Cultural',
-    icon: '🎭',
+    label: 'Literary & cultural',
+    icon: 'drama',
     keywords: [
       'pub', 'theatre', 'theater', 'music', 'studio', 'born', 'lived',
       'wrote', 'painted', 'film', 'poetry', 'novel', 'author', 'artist',
@@ -36,8 +36,8 @@ export const SIDEQUESTS: Sidequest[] = [
   },
   {
     id: 'parks-green',
-    label: 'Parks & Green Spaces',
-    icon: '🌳',
+    label: 'Parks & green spaces',
+    icon: 'trees',
     keywords: [
       'park', 'garden', 'common', 'heath', 'green', 'forest', 'nature',
       'meadow', 'wood', 'botanical', 'square', 'grove', 'woodland',

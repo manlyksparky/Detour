@@ -1,5 +1,6 @@
 import { LONDON_BOUNDS, LONDON_CENTER } from './constants'
 import type { LatLng, WikiArticle, TourStop } from '@/types'
+import { isPlaceArticle } from './tour'
 
 export const TOUR_MAX_STOPS = 15
 export const WALKING_SPEED_MPM = 80 // metres per minute ≈ 4.8 km/h
@@ -77,12 +78,15 @@ export function calculateWalkingTime(meters: number): number {
 export function computeTourStops(
   articles: WikiArticle[],
   startLat: number,
-  startLng: number
+  startLng: number,
+  options: { curated?: boolean } = {}
 ): TourStop[] {
   if (articles.length === 0) return []
 
-  // Select closest TOUR_MAX_STOPS articles by distance from center
-  const selected = [...articles]
+  // Hand-picked stops are trusted; otherwise keep places you can stand at.
+  // Then take the closest TOUR_MAX_STOPS by distance from the centre.
+  const pool = options.curated ? articles : articles.filter(isPlaceArticle)
+  const selected = [...pool]
     .sort((a, b) => a.distance - b.distance)
     .slice(0, TOUR_MAX_STOPS)
 

@@ -24,6 +24,9 @@ interface MobileSectionItem {
 
 function cleanWikiHtml(html: string): string {
   return html
+    .replace(/<(script|style|iframe|object|embed)[\s\S]*?<\/\1>/gi, '')
+    .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*')/gi, '')
+    .replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"')
     .replace(/href="\/wiki\//g, 'href="https://en.wikipedia.org/wiki/')
     .replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ')
     .replace(/<sup[\s\S]*?<\/sup>/g, '')
@@ -32,7 +35,16 @@ function cleanWikiHtml(html: string): string {
     .trim()
 }
 
+// Bounded in-memory cache: a long-lived server must not grow without limit
+const SUMMARY_CACHE_MAX = 200
 const summaryCache = new Map<number, Partial<WikiArticle>>()
+function rememberSummary(pageid: number, summary: Partial<WikiArticle>) {
+  if (summaryCache.size >= SUMMARY_CACHE_MAX) {
+    const oldest = summaryCache.keys().next().value
+    if (oldest !== undefined) summaryCache.delete(oldest)
+  }
+  summaryCache.set(pageid, summary)
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
@@ -172,7 +184,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    summaryCache.set(pageid, summary)
+    rememberSummary(pageid, summary)
     return Response.json(summary)
   }
 
@@ -209,7 +221,7 @@ export async function GET(request: NextRequest) {
     const enrichUrl = new URL('https://en.wikipedia.org/w/api.php')
     enrichUrl.searchParams.set('action', 'query')
     enrichUrl.searchParams.set('pageids', pages.map((p) => p.pageid).join('|'))
-    enrichUrl.searchParams.set('prop', 'pageimages|extracts')
+    enrichUrl.searchParams.set('prop', 'pageimages|extracts|description')
     enrichUrl.searchParams.set('exintro', 'true')
     enrichUrl.searchParams.set('explaintext', 'true')
     enrichUrl.searchParams.set('exsentences', '2')
@@ -217,7 +229,7 @@ export async function GET(request: NextRequest) {
     enrichUrl.searchParams.set('format', 'json')
     enrichUrl.searchParams.set('origin', '*')
 
-    let enriched: Record<number, { thumbnail?: { source: string }; extract?: string }> = {}
+    let enriched: Record<number, { thumbnail?: { source: string }; extract?: string; description?: string }> = {}
     try {
       const enrichRes = await fetch(enrichUrl.toString(), {
         headers: { 'User-Agent': 'LondonDetour/1.0 (personal project)' },
@@ -238,6 +250,7 @@ export async function GET(request: NextRequest) {
       distance: p.dist,
       thumbnail: enriched[p.pageid]?.thumbnail?.source,
       extract: enriched[p.pageid]?.extract ?? '',
+      description: enriched[p.pageid]?.description,
     }))
 
     return Response.json(articles)

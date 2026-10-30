@@ -7,7 +7,12 @@ import type { WikiArticle, LatLng } from '@/types'
 import type { MapControls } from './Map'
 import { getUserLocation } from '@/lib/geo'
 import { fetchNearby, fetchSummary } from '@/lib/wikipedia'
-import { LONDON_CENTER, RADIUS_DEFAULT, DEFAULT_ZOOM } from '@/lib/constants'
+import { LONDON_CENTER, RADIUS_DEFAULT } from '@/lib/constants'
+import ArticleList from './ArticleList'
+import ArticleDrawer from './ArticleDrawer'
+import FloatingBar from './FloatingBar'
+
+const Map = dynamic(() => import('./Map'), { ssr: false })
 
 function radiusToZoom(radius: number): number {
   if (radius <= 250) return 16
@@ -17,11 +22,6 @@ function radiusToZoom(radius: number): number {
   if (radius <= 5000) return 12
   return 11
 }
-import ArticleList from './ArticleList'
-import ArticleDrawer from './ArticleDrawer'
-import FloatingBar from './FloatingBar'
-
-const Map = dynamic(() => import('./Map'), { ssr: false })
 
 function useDebounce<T>(value: T, delay: number): T {
   const [dv, setDv] = useState(value)
@@ -122,9 +122,7 @@ export default function MapView() {
   }, [])
 
   const handleAddToTour = useCallback((article: WikiArticle) => {
-    setTourStopIds((prev) =>
-      prev.includes(article.pageid) ? prev : [...prev, article.pageid]
-    )
+    setTourStopIds((prev) => (prev.includes(article.pageid) ? prev : [...prev, article.pageid]))
   }, [])
 
   const handleRemoveFromTour = useCallback((pageid: number) => {
@@ -132,9 +130,13 @@ export default function MapView() {
   }, [])
 
   const handleCopyLink = useCallback(async () => {
-    await navigator.clipboard.writeText(window.location.href)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard blocked (insecure context or permission); the URL bar still has the link
+    }
   }, [])
 
   const handleCloseDrawer = useCallback(() => {
@@ -143,12 +145,20 @@ export default function MapView() {
   }, [])
 
   return (
-    <div className="relative h-dvh overflow-hidden bg-gray-100">
-      {/* Map — offset left by sidebar, right by drawer when open.
-          FloatingBar lives INSIDE here so it auto-centers in the map area. */}
+    <main className="relative h-dvh overflow-hidden bg-paper" aria-busy={loading}>
+      <a href="#places" className="skip-link hidden md:block">
+        Skip to places
+      </a>
+      <a href="#places-sheet" className="skip-link md:hidden">
+        Skip to places
+      </a>
+      {/* Map: offset by the sidebar on desktop and by the drawer when open,
+          so the floating bar stays centred in the visible map area. */}
       <div
-        className={`absolute inset-0 md:left-[380px] transition-all duration-300 ${
-          drawerOpen ? 'md:right-[380px]' : 'md:right-0'
+        id="map"
+        tabIndex={-1}
+        className={`absolute inset-0 outline-none transition-[left,right] duration-200 ease-out-expo motion-reduce:transition-none md:left-[380px] ${
+          drawerOpen ? 'md:right-[420px]' : 'md:right-0'
         }`}
       >
         <Map
@@ -164,7 +174,6 @@ export default function MapView() {
           onReady={handleMapReady}
         />
 
-        {/* Floating toolbar — centered within the map area */}
         <FloatingBar
           articles={articles}
           activeSidequest={activeSidequest}
@@ -172,6 +181,7 @@ export default function MapView() {
           lat={center.lat}
           lng={center.lng}
           radius={radius}
+          tourStopIds={tourStopIds}
           onZoomIn={() => mapControlsRef.current?.zoomIn()}
           onZoomOut={() => mapControlsRef.current?.zoomOut()}
           onSurpriseMe={handleArticleSelect}
@@ -179,7 +189,6 @@ export default function MapView() {
         />
       </div>
 
-      {/* Left sidebar / mobile bottom sheet */}
       <ArticleList
         articles={articles}
         selectedId={selectedArticle?.pageid ?? null}
@@ -197,7 +206,6 @@ export default function MapView() {
         copied={copied}
       />
 
-      {/* Article detail drawer */}
       <ArticleDrawer
         article={selectedArticle}
         isOpen={drawerOpen}
@@ -206,6 +214,6 @@ export default function MapView() {
         onAddToTour={handleAddToTour}
         onRemoveFromTour={handleRemoveFromTour}
       />
-    </div>
+    </main>
   )
 }

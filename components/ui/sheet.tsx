@@ -1,0 +1,339 @@
+'use client'
+
+import * as React from 'react'
+import { createPortal } from 'react-dom'
+import { AnimatePresence, motion, useDragControls, type PanInfo } from 'framer-motion'
+import { X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+/**
+ * EasyUI Sheet, skinned for Detour.
+ * Source: `npx shadcn@latest add Surajmaurya1/easyui/sheet`
+ * Kept: spring slide from any side, drag or swipe to dismiss, focus in and
+ * back out, Tab trap, Escape, scroll lock, title and description wiring.
+ * Changed: Surface panel with the Float shadow, an Ink scrim with no
+ * backdrop blur (the No-Blur rule), a 44px close control, and an
+ * `initialFocus` option so focus can land on the close control.
+ */
+
+function useControllableState<T>(
+  value: T | undefined,
+  defaultValue: T,
+  onChange?: (value: T) => void
+): [T, (next: T) => void] {
+  const [internal, setInternal] = React.useState<T>(defaultValue)
+  const controlled = value !== undefined
+  const current = controlled ? (value as T) : internal
+
+  const onChangeRef = React.useRef(onChange)
+  React.useEffect(() => {
+    onChangeRef.current = onChange
+  })
+
+  const set = React.useCallback(
+    (next: T) => {
+      if (!controlled) setInternal(next)
+      onChangeRef.current?.(next)
+    },
+    [controlled]
+  )
+
+  return [current, set]
+}
+
+const spring = { type: 'spring', stiffness: 380, damping: 38, mass: 0.9 } as const
+
+export type SheetSide = 'right' | 'left' | 'top' | 'bottom'
+
+const SIDES = {
+  right: {
+    pos: 'inset-y-0 right-0 h-full w-[88vw] max-w-[26rem] border-l',
+    from: { x: '100%' },
+    to: { x: 0 },
+    axis: 'x',
+    elastic: { left: 0, right: 0.6 },
+    dismiss: (i: PanInfo) => i.offset.x > 96 || i.velocity.x > 500,
+  },
+  left: {
+    pos: 'inset-y-0 left-0 h-full w-[88vw] max-w-[26rem] border-r',
+    from: { x: '-100%' },
+    to: { x: 0 },
+    axis: 'x',
+    elastic: { left: 0.6, right: 0 },
+    dismiss: (i: PanInfo) => i.offset.x < -96 || i.velocity.x < -500,
+  },
+  top: {
+    pos: 'inset-x-0 top-0 mx-auto max-h-[85dvh] w-full max-w-lg rounded-b-2xl border-x border-b',
+    from: { y: '-100%' },
+    to: { y: 0 },
+    axis: 'y',
+    elastic: { top: 0.6, bottom: 0 },
+    dismiss: (i: PanInfo) => i.offset.y < -96 || i.velocity.y < -500,
+  },
+  bottom: {
+    pos: 'inset-x-0 bottom-0 mx-auto max-h-[85dvh] w-full max-w-lg rounded-t-2xl border-x border-t',
+    from: { y: '100%' },
+    to: { y: 0 },
+    axis: 'y',
+    elastic: { top: 0, bottom: 0.6 },
+    dismiss: (i: PanInfo) => i.offset.y > 96 || i.velocity.y > 500,
+  },
+} as const
+
+/* ───────────── root + context ───────────── */
+
+interface SheetCtx {
+  open: boolean
+  setOpen: (open: boolean) => void
+  titleId: string
+  descId: string
+  hasDesc: boolean
+  setHasDesc: (v: boolean) => void
+}
+const SheetContext = React.createContext<SheetCtx | null>(null)
+function useSheet() {
+  const ctx = React.useContext(SheetContext)
+  if (!ctx) throw new Error('Sheet parts must be used inside <Sheet>')
+  return ctx
+}
+
+export function Sheet({
+  open,
+  defaultOpen = false,
+  onOpenChange,
+  children,
+}: {
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  children: React.ReactNode
+}) {
+  const [isOpen, setOpen] = useControllableState(open, defaultOpen, onOpenChange)
+  const [hasDesc, setHasDesc] = React.useState(false)
+  const titleId = React.useId()
+  const descId = React.useId()
+  const value = React.useMemo(
+    () => ({ open: isOpen, setOpen, titleId, descId, hasDesc, setHasDesc }),
+    [isOpen, setOpen, titleId, descId, hasDesc]
+  )
+  return <SheetContext.Provider value={value}>{children}</SheetContext.Provider>
+}
+
+/** Unstyled button, bring your own classes. */
+export function SheetTrigger({ onClick, ...props }: React.ComponentProps<'button'>) {
+  const { setOpen } = useSheet()
+  return (
+    <button
+      type="button"
+      aria-haspopup="dialog"
+      {...props}
+      onClick={(e) => {
+        onClick?.(e)
+        setOpen(true)
+      }}
+    />
+  )
+}
+
+export function SheetClose({ onClick, ...props }: React.ComponentProps<'button'>) {
+  const { setOpen } = useSheet()
+  return (
+    <button
+      type="button"
+      {...props}
+      onClick={(e) => {
+        onClick?.(e)
+        setOpen(false)
+      }}
+    />
+  )
+}
+
+/* ───────────── content ───────────── */
+
+export function SheetContent({
+  side = 'right',
+  showClose = true,
+  initialFocus = 'panel',
+  className,
+  closeClassName,
+  children,
+}: {
+  side?: SheetSide
+  showClose?: boolean
+  /** Where focus lands when the sheet opens */
+  initialFocus?: 'panel' | 'close'
+  className?: string
+  closeClassName?: string
+  children: React.ReactNode
+}) {
+  const { open, setOpen, titleId, descId, hasDesc } = useSheet()
+  const cfg = SIDES[side]
+  const horizontal = side === 'left' || side === 'right'
+  const panelRef = React.useRef<HTMLDivElement>(null)
+  const closeRef = React.useRef<HTMLButtonElement>(null)
+  const returnTo = React.useRef<HTMLElement | null>(null)
+  const controls = useDragControls()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // focus in, scroll lock, Esc, focus back out
+  React.useEffect(() => {
+    if (!open || !mounted) return
+    returnTo.current = document.activeElement as HTMLElement | null
+    const target = initialFocus === 'close' && closeRef.current ? closeRef.current : panelRef.current
+    const focusTimer = window.setTimeout(() => target?.focus({ preventScroll: true }), 40)
+
+    const bar = window.innerWidth - document.documentElement.clientWidth
+    const { overflow, paddingRight } = document.body.style
+    document.body.style.overflow = 'hidden'
+    if (bar > 0) document.body.style.paddingRight = `${bar}px`
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      window.clearTimeout(focusTimer)
+      document.body.style.overflow = overflow
+      document.body.style.paddingRight = paddingRight
+      document.removeEventListener('keydown', onKey)
+      returnTo.current?.focus?.({ preventScroll: true })
+    }
+  }, [open, mounted, setOpen, initialFocus])
+
+  const trapTab = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab') return
+    const nodes = panelRef.current?.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+    )
+    if (!nodes?.length) {
+      e.preventDefault()
+      return
+    }
+    const first = nodes[0]
+    const last = nodes[nodes.length - 1]
+    const el = document.activeElement
+    if (e.shiftKey && (el === first || el === panelRef.current)) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && el === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+
+  if (!mounted) return null
+
+  const handle = (
+    <div
+      onPointerDown={(e) => controls.start(e)}
+      className="flex h-7 shrink-0 cursor-grab touch-none items-center justify-center active:cursor-grabbing"
+    >
+      <span className="h-1 w-9 rounded-full bg-line-strong" />
+    </div>
+  )
+
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <div key="sheet" className="fixed inset-0 z-50">
+          <motion.div
+            aria-hidden="true"
+            className="absolute inset-0 bg-ink/20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setOpen(false)}
+          />
+          <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={hasDesc ? descId : undefined}
+            tabIndex={-1}
+            className={cn(
+              'focus-quiet absolute flex flex-col overflow-hidden border-line bg-surface text-ink shadow-float',
+              cfg.pos,
+              className
+            )}
+            initial={cfg.from}
+            animate={cfg.to}
+            exit={cfg.from}
+            transition={spring}
+            drag={cfg.axis}
+            dragControls={controls}
+            dragListener={false}
+            dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+            dragElastic={cfg.elastic}
+            dragMomentum={false}
+            dragTransition={{ bounceStiffness: 700, bounceDamping: 45 }}
+            onDragEnd={(_, info) => {
+              if (cfg.dismiss(info)) setOpen(false)
+            }}
+            // left/right: swipe anywhere on touch. top/bottom: grab the handle.
+            onPointerDown={horizontal ? (e) => e.pointerType !== 'mouse' && controls.start(e) : undefined}
+            onKeyDown={trapTab}
+            style={horizontal ? { touchAction: 'pan-y' } : undefined}
+          >
+            {side === 'bottom' && handle}
+            {children}
+            {side === 'top' && handle}
+
+            {showClose && (
+              <button
+                ref={closeRef}
+                type="button"
+                aria-label="Close"
+                onClick={() => setOpen(false)}
+                className={cn(
+                  'absolute right-3 top-3 z-10 grid size-11 cursor-pointer place-items-center rounded-full bg-surface/95 text-ink shadow-raised transition-colors hover:bg-surface active:scale-95',
+                  closeClassName
+                )}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>,
+    document.body
+  )
+}
+
+/* ───────────── layout parts ───────────── */
+
+export function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={cn('flex flex-col gap-1 px-5 pb-3 pr-14 pt-5', className)} {...props} />
+}
+
+export function SheetTitle({ className, ...props }: React.ComponentProps<'h2'>) {
+  const { titleId } = useSheet()
+  return <h2 className={cn('text-base font-semibold tracking-tight', className)} {...props} id={titleId} />
+}
+
+export function SheetDescription({ className, ...props }: React.ComponentProps<'p'>) {
+  const { descId, setHasDesc } = useSheet()
+  React.useEffect(() => {
+    setHasDesc(true)
+    return () => setHasDesc(false)
+  }, [setHasDesc])
+  return <p className={cn('text-sm text-ink-2', className)} {...props} id={descId} />
+}
+
+export function SheetBody({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={cn('min-h-0 flex-1 overflow-y-auto px-5 py-2', className)} {...props} />
+}
+
+export function SheetFooter({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={cn('flex items-center justify-end gap-2 border-t border-line px-5 py-4', className)} {...props} />
+}

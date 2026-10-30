@@ -1,0 +1,445 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T18:10:00Z",
+  "title": "Design System: Detour",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#faf9f6",
+        "tonalRamp": [
+          "#1c1917",
+          "#44403c",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4",
+          "#f3f1ec",
+          "#faf9f6"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#1c1917",
+          "#44403c",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4",
+          "#f5f5f4",
+          "#ffffff"
+        ]
+      },
+      "sunken": {
+        "role": "neutral",
+        "displayName": "Sunken",
+        "canonical": "#f3f1ec",
+        "tonalRamp": [
+          "#1c1917",
+          "#44403c",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4",
+          "#f3f1ec",
+          "#faf9f6"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1c1917",
+        "tonalRamp": [
+          "#0c0a09",
+          "#1c1917",
+          "#292524",
+          "#44403c",
+          "#57534e",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "#57534e",
+        "tonalRamp": [
+          "#1c1917",
+          "#292524",
+          "#44403c",
+          "#57534e",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3",
+        "canonical": "#78716c",
+        "tonalRamp": [
+          "#292524",
+          "#44403c",
+          "#57534e",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4",
+          "#f5f5f4"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#e7e5e4",
+        "tonalRamp": [
+          "#44403c",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4",
+          "#f0eeeb",
+          "#f5f5f4",
+          "#fafaf9"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Line Strong",
+        "canonical": "#d6d3d1",
+        "tonalRamp": [
+          "#44403c",
+          "#57534e",
+          "#78716c",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4",
+          "#f5f5f4",
+          "#fafaf9"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Marker Orange",
+        "canonical": "#e05c1a",
+        "tonalRamp": [
+          "#431407",
+          "#7c2d12",
+          "#9a3412",
+          "#c2410c",
+          "#e05c1a",
+          "#f0874f",
+          "#f9bc99",
+          "#fff1e8"
+        ]
+      },
+      "accent-strong": {
+        "role": "primary",
+        "displayName": "Deep Marker",
+        "canonical": "#c2410c",
+        "tonalRamp": [
+          "#431407",
+          "#7c2d12",
+          "#9a3412",
+          "#c2410c",
+          "#e05c1a",
+          "#f0874f",
+          "#f9bc99",
+          "#fff1e8"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Orange Wash",
+        "canonical": "#fff1e8",
+        "tonalRamp": [
+          "#431407",
+          "#7c2d12",
+          "#9a3412",
+          "#c2410c",
+          "#e05c1a",
+          "#f0874f",
+          "#f9bc99",
+          "#fff1e8"
+        ]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Success",
+        "canonical": "#15803d",
+        "tonalRamp": [
+          "#052e16",
+          "#14532d",
+          "#166534",
+          "#15803d",
+          "#16a34a",
+          "#4ade80",
+          "#bbf7d0",
+          "#f0fdf4"
+        ]
+      },
+      "line-field": {
+        "role": "neutral",
+        "displayName": "Line Field",
+        "canonical": "#8f8a85",
+        "tonalRamp": [
+          "#1c1917",
+          "#44403c",
+          "#57534e",
+          "#78716c",
+          "#8f8a85",
+          "#a8a29e",
+          "#d6d3d1",
+          "#e7e5e4"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Drawer and tour page titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Wordmark and section headings inside panels."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Article prose in the drawer."
+      },
+      "body-dense": {
+        "displayName": "Body dense",
+        "purpose": "Sidebar copy, buttons, stats."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Metadata, distances, counts, attribution. The floor is 12px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px rgba(28, 25, 23, 0.05)",
+        "purpose": "Cards at rest inside panels."
+      },
+      {
+        "name": "raised",
+        "value": "0 4px 12px rgba(28, 25, 23, 0.08)",
+        "purpose": "Hovered cards, primary button, map markers."
+      },
+      {
+        "name": "float",
+        "value": "0 8px 24px rgba(28, 25, 23, 0.14)",
+        "purpose": "Floating bars, drawer, phone sheet."
+      }
+    ],
+    "motion": [
+      {
+        "name": "spring-snappy",
+        "value": "spring 380 / 30 / 0.5",
+        "purpose": "Taps compress to 97%; tooltips, menus and morphing labels. Settles in about 200 ms."
+      },
+      {
+        "name": "spring-smooth",
+        "value": "spring 200 / 28 / 0.85",
+        "purpose": "The dock's entrance and the search bar's width."
+      },
+      {
+        "name": "spring-morph",
+        "value": "spring 220 / 32 / 1.0",
+        "purpose": "Shared-layout indicators: the chip wash and the trail ring."
+      },
+      {
+        "name": "spring-sheet",
+        "value": "spring 380 / 38 / 0.9",
+        "purpose": "The place sheet slides and settles; drag past 96px or a flick dismisses."
+      },
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Opacity and colour transitions, 200 to 500 ms; the intro exit."
+      },
+      {
+        "name": "duration-camera",
+        "value": "600ms",
+        "purpose": "Map fly-to; zero under prefers-reduced-motion."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "MotionConfig reducedMotion=\"user\"",
+        "purpose": "Transforms and layout animations become instant; fades stay. The magnetic button holds still."
+      },
+      {
+        "name": "input-clear-dissolve",
+        "value": "out 400ms / in 400ms / 12px / blur 2px, streak 1000ms",
+        "purpose": "transitions.dev recipe on the search field's clear control; tokens --clear-* and --glow-* in globals.css. Instant under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one orange action on a screen: Plan tour, Add to walking tour, Try again. An EasyUI Button re-skinned: it compresses to 97% on tap and springs back.",
+      "html": "<button class=\"ds-btn-primary\">Plan tour</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border: 0; border-radius: 9999px; background: var(--color-accent, #e05c1a); color: var(--color-ink, #1c1917); font: 600 14px/1 Inter, system-ui, sans-serif; cursor: pointer; box-shadow: 0 4px 12px rgba(28,25,23,0.08); transition: background 200ms cubic-bezier(0.22,1,0.36,1), color 200ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary:hover { background: var(--color-accent-strong, #c2410c); color: #fff; } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet pill for everything that is not the primary action.",
+      "html": "<button class=\"ds-btn-secondary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/></svg>Copy link</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border: 1px solid var(--color-line, #e7e5e4); border-radius: 9999px; background: var(--color-surface, #fff); color: var(--color-ink, #1c1917); font: 500 14px/1 Inter, system-ui, sans-serif; cursor: pointer; transition: background 200ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-secondary:hover { background: var(--color-paper, #faf9f6); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Sidequest Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Theme filter. Selected state uses Orange Wash with Deep Marker text.",
+      "html": "<span style=\"display:inline-flex;gap:8px\"><button class=\"ds-chip\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/></svg>Hidden histories</button><button class=\"ds-chip ds-chip-selected\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 10V5a2 2 0 0 1 4 0v5\"/><path d=\"M3 22V10l9-6 9 6v12\"/><path d=\"M3 22h18\"/></svg>Architecture</button></span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--color-line, #e7e5e4); border-radius: 9999px; background: var(--color-surface, #fff); color: var(--color-ink-2, #57534e); font: 500 12px/1 Inter, system-ui, sans-serif; cursor: pointer; transition: color 200ms, background 200ms, border-color 200ms; } .ds-chip:hover { color: var(--color-ink, #1c1917); } .ds-chip-selected, .ds-chip-selected:hover { background: var(--color-accent-soft, #fff1e8); border-color: var(--color-accent-strong, #c2410c); color: var(--color-accent-strong, #c2410c); } .ds-chip:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Article Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "One nearby place. The whole card opens the drawer; the title is the real button.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-thumb\"></div><div class=\"ds-card-body\"><h3 class=\"ds-card-title\"><button class=\"ds-card-btn\">Equestrian statue of Charles I, Charing Cross</button></h3><p class=\"ds-card-meta\">11 m away</p><p class=\"ds-card-text\">The oldest bronze statue in London and the point from which distances to the city are measured.</p></div></article>",
+      "css": ".ds-card { display: flex; gap: 12px; padding: 16px; width: 340px; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #e7e5e4); border-radius: 16px; box-shadow: 0 1px 2px rgba(28,25,23,0.05); font-family: Inter, system-ui, sans-serif; transition: box-shadow 200ms, border-color 200ms; } .ds-card:hover { box-shadow: 0 4px 12px rgba(28,25,23,0.08); border-color: var(--color-line-strong, #d6d3d1); } .ds-card-thumb { flex: none; width: 64px; height: 64px; border-radius: 12px; background: var(--color-sunken, #f3f1ec); } .ds-card-body { min-width: 0; } .ds-card-title { margin: 0; font-size: 14px; line-height: 1.35; font-weight: 600; color: var(--color-ink, #1c1917); } .ds-card-btn { all: unset; cursor: pointer; } .ds-card-btn:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; border-radius: 4px; } .ds-card-meta { margin: 4px 0 0; font-size: 12px; font-weight: 500; color: var(--color-accent-strong, #c2410c); } .ds-card-text { margin: 4px 0 0; font-size: 12px; line-height: 1.5; color: var(--color-ink-2, #57534e); }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Place search on EasyUI's iOS search bar: a visually hidden label, a leading icon that turns Ink on focus, a clear control once there is text, and the submit button nested inside the field.",
+      "html": "<div class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><label class=\"ds-sr\" for=\"q\">Search a place in London</label><input id=\"q\" type=\"search\" placeholder=\"Search a place in London\"><button class=\"ds-search-go ds-focus\" aria-label=\"Search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg></button></div>",
+      "css": ".ds-search { display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 4px 0 12px; background: var(--color-surface, #fff); border: 1px solid var(--color-line-field, #8f8a85); border-radius: 12px; color: var(--color-ink-3, #78716c); font-family: Inter, system-ui, sans-serif; } .ds-search:focus-within { color: var(--color-ink, #1c1917); } .ds-search:has(input:focus-visible) { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; } .ds-search input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; color: var(--color-ink, #1c1917); font: 400 14px/1.5 Inter, system-ui, sans-serif; outline: none; } .ds-search input::placeholder { color: var(--color-ink-3, #78716c); } .ds-search-go { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 9999px; background: var(--color-accent, #e05c1a); color: var(--color-ink, #1c1917); cursor: pointer; } .ds-search-go:hover { background: var(--color-accent-strong, #c2410c); color: #fff; } .ds-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .ds-focus:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Floating Dock",
+      "kind": "nav",
+      "refersTo": "button-secondary",
+      "description": "The toolbar that floats over the map, built on EasyUI's small floating dock. A 44px Surface pill sized to content; 36px items with a 44px hit area lift 1px on hover; the primary action is nested at the end.",
+      "html": "<div class=\"ds-dock\" role=\"group\" aria-label=\"Map actions\"><button class=\"ds-dock-item ds-focus\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polygon points=\"16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76\"/></svg>Sidequests</button><span class=\"ds-dock-div\"></span><button class=\"ds-dock-item ds-focus\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01\"/></svg>Surprise me</button><span class=\"ds-dock-div\"></span><button class=\"ds-dock-primary ds-focus\">Plan tour</button></div>",
+      "css": ".ds-dock { display: inline-flex; align-items: center; gap: 2px; height: 44px; width: max-content; padding: 4px; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #e7e5e4); border-radius: 9999px; box-shadow: 0 8px 24px rgba(28,25,23,0.14); font-family: Inter, system-ui, sans-serif; } .ds-dock-item { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; background: transparent; color: var(--color-ink, #1c1917); font: 500 14px/1 Inter, system-ui, sans-serif; cursor: pointer; border-radius: 9999px; transition: background 150ms, transform 200ms cubic-bezier(0.22,1,0.36,1); } .ds-dock-item::before { content: ''; position: absolute; inset: -4px 0; } .ds-dock-item:hover { background: var(--color-paper, #faf9f6); transform: translateY(-1px); } .ds-dock-div { width: 1px; height: 20px; margin: 0 2px; background: var(--color-line, #e7e5e4); } .ds-dock-primary { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border: 0; border-radius: 9999px; background: var(--color-accent, #e05c1a); color: var(--color-ink, #1c1917); font: 600 14px/1 Inter, system-ui, sans-serif; cursor: pointer; box-shadow: 0 4px 12px rgba(28,25,23,0.08); } .ds-dock-primary:hover { background: var(--color-accent-strong, #c2410c); color: #fff; } .ds-focus:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Select",
+      "kind": "select",
+      "refersTo": "select",
+      "description": "Search radius on EasyUI's spring select: the menu rides a snappy spring below a 44px field and the chevron rotates a hair past 180°. The highlighted option is Sunken; the chosen one is Deep Marker with a check.",
+      "html": "<div class=\"ds-select\"><button class=\"ds-select-trigger ds-focus\" aria-haspopup=\"listbox\" aria-expanded=\"true\">Within 1 km<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></button><ul class=\"ds-select-menu\" role=\"listbox\"><li role=\"option\">Within 500 m</li><li role=\"option\" aria-selected=\"true\">Within 1 km<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg></li><li role=\"option\" class=\"is-active\">Within 2 km</li></ul></div>",
+      "css": ".ds-select { position: relative; width: 220px; font-family: Inter, system-ui, sans-serif; } .ds-select-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 44px; padding: 0 12px; background: var(--color-surface, #fff); border: 1px solid var(--color-line-field, #8f8a85); border-radius: 12px; color: var(--color-ink, #1c1917); font: 500 14px/1 Inter, system-ui, sans-serif; cursor: pointer; } .ds-select-trigger[aria-expanded='true'] { border-color: var(--color-accent-strong, #c2410c); } .ds-select-trigger svg { color: var(--color-ink-3, #78716c); transform: rotate(192deg); } .ds-select-menu { position: absolute; left: 0; right: 0; margin: 6px 0 0; padding: 4px; list-style: none; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #e7e5e4); border-radius: 12px; box-shadow: 0 8px 24px rgba(28,25,23,0.14); } .ds-select-menu li { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; color: var(--color-ink, #1c1917); font: 400 14px/1.2 Inter, system-ui, sans-serif; cursor: pointer; } .ds-select-menu li[aria-selected='true'] { color: var(--color-accent-strong, #c2410c); font-weight: 500; } .ds-select-menu li.is-active { background: var(--color-sunken, #f3f1ec); } .ds-focus:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Sheet",
+      "kind": "dialog",
+      "refersTo": "card",
+      "description": "The place panel on EasyUI's sheet: slides in from the right on desktop, rises as a bottom sheet on phones, and can be dragged or flicked away. Surface panel, Float shadow, Ink scrim at 20%, no blur.",
+      "html": "<div class=\"ds-sheet-scrim\"></div><div class=\"ds-sheet\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"t\"><div class=\"ds-sheet-grab\"><span></span></div><button class=\"ds-sheet-close ds-focus\" aria-label=\"Close\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg></button><div class=\"ds-sheet-body\"><h2 id=\"t\">Nelson's Column</h2><p>Monument in Trafalgar Square</p></div></div>",
+      "css": ".ds-sheet-scrim { position: fixed; inset: 0; background: rgba(28,25,23,0.2); } .ds-sheet { position: fixed; right: 0; top: 0; bottom: 0; width: 420px; display: flex; flex-direction: column; background: var(--color-surface, #fff); color: var(--color-ink, #1c1917); border-left: 1px solid var(--color-line, #e7e5e4); box-shadow: 0 8px 24px rgba(28,25,23,0.14); font-family: Inter, system-ui, sans-serif; } .ds-sheet-grab { display: none; height: 28px; align-items: center; justify-content: center; } .ds-sheet-grab span { width: 36px; height: 4px; border-radius: 2px; background: var(--color-line-strong, #d6d3d1); } .ds-sheet-close { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 9999px; background: rgba(255,255,255,0.95); color: var(--color-ink, #1c1917); box-shadow: 0 4px 12px rgba(28,25,23,0.08); cursor: pointer; } .ds-sheet-body { flex: 1; overflow-y: auto; padding: 20px; } .ds-sheet-body h2 { margin: 0; font: 700 20px/1.3 Inter, system-ui, sans-serif; text-wrap: balance; } .ds-sheet-body p { margin: 8px 0 0; color: var(--color-ink-2, #57534e); font-size: 14px; } @media (max-width: 767px) { .ds-sheet { top: auto; left: 0; max-height: 92dvh; width: auto; border-left: 0; border-top: 1px solid var(--color-line, #e7e5e4); border-radius: 16px 16px 0 0; } .ds-sheet-grab { display: flex; } } .ds-focus:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Trail",
+      "kind": "list",
+      "refersTo": "card",
+      "description": "The tour's stop list on EasyUI's stepper: 28px numbered indicators beside each card, joined by a 1px Line connector that carries the walking leg. Passed stops fill Ink; the active stop is Marker Orange with a Deep Marker ring.",
+      "html": "<ol class=\"ds-trail\"><li class=\"is-done\"><span class=\"ds-trail-dot\">1</span><div class=\"ds-trail-card\">Equestrian statue of Charles I</div><p class=\"ds-trail-leg\">22 m, under 1 min to stop 2</p></li><li class=\"is-current\"><span class=\"ds-trail-dot\">2</span><div class=\"ds-trail-card\">Charing Cross</div><p class=\"ds-trail-leg\">36 m, under 1 min to stop 3</p></li><li><span class=\"ds-trail-dot\">3</span><div class=\"ds-trail-card\">Parliament Street from Trafalgar Square</div></li></ol>",
+      "css": ".ds-trail { list-style: none; margin: 0; padding: 0; width: 340px; font-family: Inter, system-ui, sans-serif; } .ds-trail li { position: relative; display: grid; grid-template-columns: 28px 1fr; column-gap: 12px; } .ds-trail li:not(:last-child)::before { content: ''; position: absolute; left: 13.5px; top: 44px; bottom: 0; width: 1px; background: var(--color-line, #e7e5e4); } .ds-trail li.is-done:not(:last-child)::before { background: var(--color-ink, #1c1917); } .ds-trail-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 28px; height: 28px; margin-top: 16px; border: 1px solid var(--color-line-strong, #d6d3d1); border-radius: 9999px; background: var(--color-surface, #fff); color: var(--color-ink, #1c1917); font: 700 12px/1 Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; } .is-done .ds-trail-dot { background: var(--color-ink, #1c1917); border-color: var(--color-ink, #1c1917); color: #fff; } .is-current .ds-trail-dot { background: var(--color-accent, #e05c1a); border-color: var(--color-accent, #e05c1a); box-shadow: 0 4px 12px rgba(28,25,23,0.08); } .is-current .ds-trail-dot::after { content: ''; position: absolute; inset: -5px; border: 1px solid var(--color-accent-strong, #c2410c); border-radius: 9999px; } .ds-trail-card { padding: 16px; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #e7e5e4); border-radius: 16px; box-shadow: 0 1px 2px rgba(28,25,23,0.05); font: 600 14px/1.35 Inter, system-ui, sans-serif; color: var(--color-ink, #1c1917); } .is-current .ds-trail-card { border-color: var(--color-accent, #e05c1a); box-shadow: 0 4px 12px rgba(28,25,23,0.08); } .ds-trail-leg { grid-column: 2; margin: 0; padding: 8px 0; color: var(--color-ink-2, #57534e); font: 500 12px/1.4 Inter, system-ui, sans-serif; }"
+    },
+    {
+      "name": "Morphing Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "EasyUI's morphing button: the label changes in place without the control changing size. Copy link becomes Copied with a Success check; Add to walking tour becomes Added to your tour.",
+      "html": "<button class=\"ds-morph ds-focus\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>Copied</button>",
+      "css": ".ds-morph { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 116px; height: 44px; padding: 0 12px; background: var(--color-surface, #fff); border: 1px solid var(--color-line-strong, #d6d3d1); border-radius: 12px; color: var(--color-ink, #1c1917); font: 600 14px/1 Inter, system-ui, sans-serif; cursor: pointer; } .ds-morph svg { color: var(--color-success, #15803d); } .ds-morph:hover { background: var(--color-paper, #faf9f6); } .ds-focus:focus-visible { outline: 2px solid var(--color-accent-strong, #c2410c); outline-offset: 2px; }"
+    },
+    {
+      "name": "Skeleton",
+      "kind": "placeholder",
+      "refersTo": "card",
+      "description": "EasyUI's skeleton: Sunken blocks with a slow light sweep, shaped like the content they stand in for.",
+      "html": "<div class=\"ds-skel-card\"><span class=\"ds-skel ds-skel-thumb\"></span><div><span class=\"ds-skel\" style=\"width:80%\"></span><span class=\"ds-skel\" style=\"width:40%\"></span><span class=\"ds-skel\" style=\"width:60%\"></span></div></div>",
+      "css": ".ds-skel-card { display: flex; gap: 12px; width: 340px; padding: 16px; background: var(--color-surface, #fff); border: 1px solid var(--color-line, #e7e5e4); border-radius: 16px; } .ds-skel-card > div { flex: 1; padding-top: 4px; } .ds-skel { position: relative; display: block; height: 12px; margin-bottom: 10px; border-radius: 6px; background: var(--color-sunken, #f3f1ec); overflow: hidden; } .ds-skel-thumb { width: 64px; height: 64px; border-radius: 12px; flex-shrink: 0; } .ds-skel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent); animation: ds-sweep 1.8s ease-in-out infinite; } @keyframes ds-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } } @media (prefers-reduced-motion: reduce) { .ds-skel::after { animation: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Notebook",
+    "overview": "Detour is a map you annotate while walking. The interface borrows the materials of a notebook kept in a coat pocket: warm paper, dark ink, and one orange marker pen used sparingly to say \"here\". Everything that is not the map or the story is quiet, so the basemap's own colour and the article photographs are the only pictures on screen.\n\nThe product runs in Operate mode: the visitor is in a task (find, read, plan) and the interface should disappear into it. Density is moderate, controls are the ones people already know from maps apps, and the single family does every job. Motion only reports state, with one authored exception, the welcome sequence, which shows once per session and can always be skipped.\n\nThe controls are EasyUI primitives (components/ui, installed through the shadcn registry) re-skinned to this system. EasyUI supplies the mechanics: spring taps, a floating dock, a draggable sheet, a select that rides a spring, labels that morph in place, skeletons with a light sweep, a stepper trail. The notebook supplies every colour, radius, size and shadow. A registry component's own palette never ships.",
+    "keyCharacteristics": [
+      "Warm off-white paper with pure white surfaces lifted on it; no dark chrome anywhere.",
+      "One accent. Bright orange marks places and carries big actions; a deeper orange handles small text so it reads.",
+      "Ink text on the bright orange, never white on it.",
+      "One icon family (Lucide), one type family (Inter), no emoji in the interface.",
+      "Opaque panels. Blur is never used as decoration.",
+      "Physical motion from one token file: short springs that settle without bouncing, instant under reduced motion."
+    ],
+    "rules": [
+      {
+        "name": "The Ink-on-Orange Rule",
+        "body": "Text that sits on Marker Orange is Ink. White on the bright orange fails contrast and is never used, including on badges.",
+        "section": "colors"
+      },
+      {
+        "name": "The Small-Text Rule",
+        "body": "Orange text below 18px, and any orange icon that carries meaning, uses Deep Marker. Marker Orange is for fills, pins and lines.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Marker Rule",
+        "body": "Orange appears on fewer than one in ten elements of any screen: pins, the selected item, the primary action, and nothing else.",
+        "section": "colors"
+      },
+      {
+        "name": "The Twelve Pixel Floor",
+        "body": "Functional text is never smaller than 12px. Attribution and keyboard hints included.",
+        "section": "typography"
+      },
+      {
+        "name": "The Balanced Heading Rule",
+        "body": "Headings wrap with text-wrap: balance; paragraphs with text-wrap: pretty.",
+        "section": "typography"
+      },
+      {
+        "name": "The No-Blur Rule",
+        "body": "Panels are opaque. Nothing uses backdrop-filter; the map is expensive to repaint and a frosted edge over it is decoration.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set text on Marker Orange in Ink, and orange text below 18px in Deep Marker.",
+      "Do build icons from Lucide at 16px (chips, metadata) or 18px (toolbar) with a 2px stroke.",
+      "Do size floating controls to their content with width: max-content and a 16px viewport gutter.",
+      "Do give every control a visible focus ring, a name, and keyboard activation; divs are never clickable.",
+      "Do keep panels opaque and let depth come from Surface-on-Paper plus the three shadows.",
+      "Do build new controls from the EasyUI primitives in components/ui, re-skinned with these tokens before they ship."
+    ],
+    "donts": [
+      "Don't use emoji as icons anywhere in the interface.",
+      "Don't put an eyebrow or kicker label above a heading; the heading carries its own weight.",
+      "Don't use backdrop-filter on any panel over the map.",
+      "Don't reintroduce dark chrome: dark pills, dark splash screens, or dark error pages.",
+      "Don't set functional text below 12px.",
+      "Don't keep a registry component's own palette, glow or 11px labels; the mechanics come from EasyUI, the look comes from here."
+    ]
+  }
+}

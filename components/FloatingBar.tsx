@@ -1,9 +1,16 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useId } from 'react'
 import { useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Minus, Plus, Compass, Dices, Route } from 'lucide-react'
 import type { WikiArticle } from '@/types'
-import { SIDEQUESTS } from '@/lib/sidequests'
+import { encodeStops } from '@/lib/tour'
+import { motionTransitions } from '@/lib/motion-tokens'
+import { FloatingDock, DockItem, DockDivider } from '@/components/ui/small-floating-dock'
+import { MagneticButton } from '@/components/ui/magnetic-button'
+import { Badge } from '@/components/ui/badge'
+import SidequestChips from './SidequestChips'
 
 interface FloatingBarProps {
   articles: WikiArticle[]
@@ -12,6 +19,7 @@ interface FloatingBarProps {
   lat: number
   lng: number
   radius: number
+  tourStopIds: number[]
   onZoomIn: () => void
   onZoomOut: () => void
   onSurpriseMe: (article: WikiArticle) => void
@@ -25,6 +33,7 @@ export default function FloatingBar({
   lat,
   lng,
   radius,
+  tourStopIds,
   onZoomIn,
   onZoomOut,
   onSurpriseMe,
@@ -32,135 +41,159 @@ export default function FloatingBar({
 }: FloatingBarProps) {
   const router = useRouter()
   const [sidequestOpen, setSidequestOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const toggleRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
+  const popoverId = useId()
 
+  // Close the theme picker on outside pointer or Escape
   useEffect(() => {
-    function handle(e: MouseEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+    if (!sidequestOpen) return
+    function onPointer(e: PointerEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setSidequestOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
         setSidequestOpen(false)
+        toggleRef.current?.focus()
       }
     }
-    document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
-  }, [])
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [sidequestOpen])
+
+  // Opening the picker moves focus to the first chip; Escape returns it to the toggle
+  useEffect(() => {
+    if (sidequestOpen) popoverRef.current?.querySelector<HTMLElement>('button')?.focus()
+  }, [sidequestOpen])
 
   const handleSurpriseMe = () => {
     if (articles.length === 0) return
     onSurpriseMe(articles[Math.floor(Math.random() * articles.length)])
   }
 
-  // Plan Tour auto-generates from current center + radius (same-tab navigation)
+  // Plan tour builds from the current centre + radius, or from hand-picked stops
   const handlePlanTour = () => {
     const params = new URLSearchParams({
       lat: lat.toFixed(5),
       lng: lng.toFixed(5),
       radius: radius.toString(),
     })
+    if (tourStopIds.length > 0) params.set('stops', encodeStops(tourStopIds))
     router.push(`/tour?${params}`)
   }
 
+  const empty = articles.length === 0
+  const picked = tourStopIds.length
+  // The drawer narrows the map on desktop; drop the zoom buttons and the Surprise label so the dock still fits
+  const compact = isDrawerOpen
+
   return (
     <div
+      ref={rootRef}
       className={`
-        absolute bottom-[calc(3.5rem+env(safe-area-inset-bottom)+1rem)] md:bottom-6
-        left-1/2 -translate-x-1/2 z-20
-        transition-opacity duration-200
+        absolute bottom-[calc(3.5rem+env(safe-area-inset-bottom)+0.75rem)] md:bottom-6
+        left-1/2 z-20 w-max max-w-[calc(100%-2rem)] -translate-x-1/2
+        transition-opacity duration-200 motion-reduce:transition-none
         ${isDrawerOpen
-          ? 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto'
-          : 'opacity-100 pointer-events-auto'}
+          ? 'pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100'
+          : 'opacity-100'}
       `}
     >
-      {/* Sidequest chips popover */}
-      {sidequestOpen && (
-        <div
-          ref={popoverRef}
-          className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 flex gap-2 flex-nowrap"
+      <FloatingDock label="Map actions">
+        <DockItem
+          icon={<Minus />}
+          label="Zoom out"
+          hideLabel
+          tooltip
+          onClick={onZoomOut}
+          className={compact ? 'hidden' : 'hidden md:inline-flex'}
+        />
+        <DockItem
+          icon={<Plus />}
+          label="Zoom in"
+          hideLabel
+          tooltip
+          onClick={onZoomIn}
+          className={compact ? 'hidden' : 'hidden md:inline-flex'}
+        />
+        <DockDivider className={compact ? 'hidden' : 'hidden md:block'} />
+
+        <DockItem
+          ref={toggleRef}
+          icon={<Compass />}
+          label="Sidequests"
+          labelClassName="hidden xs:inline"
+          active={!!activeSidequest}
+          aria-expanded={sidequestOpen}
+          aria-controls={sidequestOpen ? popoverId : undefined}
+          onClick={() => setSidequestOpen((v) => !v)}
         >
-          {SIDEQUESTS.map((sq) => (
-            <button
-              key={sq.id}
-              onClick={() => {
-                onSidequestChange(activeSidequest === sq.id ? null : sq.id)
+          {activeSidequest && <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />}
+        </DockItem>
+
+        <DockDivider />
+
+        <DockItem
+          icon={<Dices />}
+          label="Surprise me"
+          labelClassName={compact ? 'hidden' : 'hidden sm:inline'}
+          title="Surprise me: open a random place nearby"
+          disabled={empty}
+          onClick={handleSurpriseMe}
+        />
+
+        <DockDivider />
+
+        {/* The primary action is nested in the pill; the pseudo-element gives it the full 44px hit area */}
+        <MagneticButton
+          variant="primary"
+          size="nested"
+          strength={0.2}
+          disabled={empty}
+          onClick={handlePlanTour}
+          className="before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
+        >
+          <Route size={18} aria-hidden="true" />
+          <span>Plan tour</span>
+          {picked > 0 && <span className="sr-only">, {picked} picked</span>}
+          {picked > 0 && (
+            <Badge tone="ink" size="sm" aria-hidden="true">
+              {picked}
+            </Badge>
+          )}
+        </MagneticButton>
+      </FloatingDock>
+
+      <AnimatePresence>
+        {sidequestOpen && (
+          <motion.div
+            id={popoverId}
+            ref={popoverRef}
+            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={motionTransitions.springSnappy}
+            className="absolute bottom-full left-1/2 mb-3 w-max max-w-[calc(100vw-2rem)] origin-bottom -translate-x-1/2"
+          >
+            <SidequestChips
+              label="Sidequest themes"
+              size="md"
+              elevated
+              className="justify-center"
+              active={activeSidequest}
+              onChange={(id) => {
+                onSidequestChange(id)
                 setSidequestOpen(false)
               }}
-              className={`shrink-0 flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium shadow-lg whitespace-nowrap transition-colors ${
-                activeSidequest === sq.id
-                  ? 'bg-detour-orange text-white'
-                  : 'bg-[#1c1c1e] text-white/80 hover:text-white'
-              }`}
-            >
-              <span>{sq.icon}</span>
-              <span>{sq.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Pill bar */}
-      <div className="flex items-center bg-[#1c1c1e]/95 backdrop-blur-md rounded-full shadow-2xl border border-white/10 overflow-hidden h-11">
-
-        {/* − zoom */}
-        <button
-          onClick={onZoomOut}
-          aria-label="Zoom out"
-          className="w-11 h-11 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M5 12h14" />
-          </svg>
-        </button>
-
-        <div className="w-px h-5 bg-white/15" />
-
-        {/* + zoom */}
-        <button
-          onClick={onZoomIn}
-          aria-label="Zoom in"
-          className="w-11 h-11 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-        </button>
-
-        <div className="w-px h-5 bg-white/15" />
-
-        {/* Sidequests */}
-        <button
-          onClick={() => setSidequestOpen((v) => !v)}
-          className={`flex items-center gap-2 px-4 h-11 text-sm font-medium transition-colors ${
-            activeSidequest || sidequestOpen ? 'text-detour-orange' : 'text-white hover:bg-white/10'
-          }`}
-        >
-          <span className="text-base leading-none">🧭</span>
-          Sidequests
-          {activeSidequest && <span className="w-1.5 h-1.5 rounded-full bg-detour-orange" />}
-        </button>
-
-        <div className="w-px h-5 bg-white/15" />
-
-        {/* Surprise Me */}
-        <button
-          onClick={handleSurpriseMe}
-          disabled={articles.length === 0}
-          className="flex items-center gap-2 px-4 h-11 text-sm font-medium text-white hover:bg-white/10 transition-colors disabled:opacity-40"
-        >
-          <span className="text-base leading-none">🎲</span>
-          Surprise Me
-        </button>
-
-        <div className="w-px h-5 bg-white/15" />
-
-        {/* Plan Tour — always visible, auto-generates from current area */}
-        <button
-          onClick={handlePlanTour}
-          disabled={articles.length === 0}
-          className="flex items-center gap-2 mx-1.5 px-4 h-9 rounded-full bg-white text-gray-900 text-sm font-semibold hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <span className="text-base leading-none">🗺️</span>
-          Plan Tour
-        </button>
-      </div>
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

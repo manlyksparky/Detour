@@ -25,9 +25,11 @@ export interface TourStop extends WikiArticle {
   timeFromPrev?: number  // walking minutes
 }
 
+export type SidequestIcon = 'flame' | 'landmark' | 'drama' | 'trees'
+
 export interface Sidequest {
   id: string
   label: string
-  icon: string
+  icon: SidequestIcon
   keywords: string[]
 }
