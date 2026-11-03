@@ -35,9 +35,21 @@ function cleanWikiHtml(html: string): string {
     .trim()
 }
 
-// Bounded in-memory cache: a long-lived server must not grow without limit
+// Bounded in-memory caches: a long-lived server must not grow without limit
 const SUMMARY_CACHE_MAX = 200
 const summaryCache = new Map<number, Partial<WikiArticle>>()
+
+// Nearby searches repeat whenever the visitor zooms back to a spot; keep them a few minutes
+const NEARBY_CACHE_MAX = 100
+const NEARBY_TTL_MS = 5 * 60 * 1000
+const nearbyCache = new Map<string, { at: number; articles: WikiArticle[] }>()
+function rememberNearby(key: string, articles: WikiArticle[]) {
+  if (nearbyCache.size >= NEARBY_CACHE_MAX) {
+    const oldest = nearbyCache.keys().next().value
+    if (oldest !== undefined) nearbyCache.delete(oldest)
+  }
+  nearbyCache.set(key, { at: Date.now(), articles })
+}
 function rememberSummary(pageid: number, summary: Partial<WikiArticle>) {
   if (summaryCache.size >= SUMMARY_CACHE_MAX) {
     const oldest = summaryCache.keys().next().value
@@ -197,6 +209,10 @@ export async function GET(request: NextRequest) {
   }
 
   const radius = Math.min(parseInt(radiusParam), 10000)
+  const cacheKey = `${parseFloat(lat).toFixed(4)},${parseFloat(lng).toFixed(4)},${radius}`
+  const cached = nearbyCache.get(cacheKey)
+  if (cached && Date.now() - cached.at < NEARBY_TTL_MS) return Response.json(cached.articles)
+
   const geoUrl = new URL('https://en.wikipedia.org/w/api.php')
   geoUrl.searchParams.set('action', 'query')
   geoUrl.searchParams.set('list', 'geosearch')
@@ -211,11 +227,14 @@ export async function GET(request: NextRequest) {
       headers: { 'User-Agent': 'LondonDetour/1.0 (personal project)' },
     })
 
-    if (!res.ok) return Response.json([])
+    if (!res.ok) return Response.json({ error: `Wikipedia responded ${res.status}` }, { status: 502 })
 
     const data = await res.json()
     const pages: GeoSearchPage[] = data.query?.geosearch ?? []
-    if (pages.length === 0) return Response.json([])
+    if (pages.length === 0) {
+      rememberNearby(cacheKey, [])
+      return Response.json([])
+    }
 
     // Batch-enrich with thumbnails + short extracts in one follow-up call
     const enrichUrl = new URL('https://en.wikipedia.org/w/api.php')
@@ -253,8 +272,9 @@ export async function GET(request: NextRequest) {
       description: enriched[p.pageid]?.description,
     }))
 
+    rememberNearby(cacheKey, articles)
     return Response.json(articles)
   } catch {
-    return Response.json([])
+    return Response.json({ error: 'Wikipedia unavailable' }, { status: 502 })
   }
 }

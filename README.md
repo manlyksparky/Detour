@@ -19,17 +19,24 @@ then stitches a walkable tour out of them, optionally narrated by Claude.
   stop is somewhere you can stand.
 - **AI narration** *(optional)*: Claude writes a short, atmospheric narration
   for each stop, tying it to London's broader history.
+- **3D map**: both maps are drawn as a model of the streets, with buildings
+  extruded from their real heights, real terrain, and a globe when you zoom
+  right out. A dock control lays the map flat. On the tour the route follows
+  the streets, and **Preview walk** flies the camera along it stop by stop.
+- **You are here**: your position stays on the map as you walk.
 
 ## Tech stack
 
 - [Next.js 14](https://nextjs.org) (App Router) + React 18 + TypeScript
-- [MapLibre GL](https://maplibre.org) with [OpenFreeMap](https://openfreemap.org) tiles
+- [MapLibre GL](https://maplibre.org) with [OpenFreeMap](https://openfreemap.org) tiles, re-dressed to the Detour palette in `lib/basemap.ts`
+- [Terrarium elevation tiles](https://registry.opendata.aws/terrain-tiles/) (Mapzen, on AWS Open Data) for terrain
 - [Tailwind CSS v4](https://tailwindcss.com) for styling; tokens in `app/globals.css` and `DESIGN.md`
 - [EasyUI](https://github.com/Surajmaurya1/easyui) components, installed through the [shadcn](https://ui.shadcn.com) registry and re-skinned to the Detour palette in `components/ui/`
 - [Lucide](https://lucide.dev) icons, [Framer Motion](https://www.framer.com/motion/) for the EasyUI springs and the welcome sequence
 - [transitions.dev](https://transitions.dev) "Input clear with dissolve" on the search field (`lib/transitions/`)
 - [Wikipedia GeoSearch & REST APIs](https://www.mediawiki.org/wiki/API:Geosearch) for content
 - [Nominatim](https://nominatim.org) for place search and addresses
+- [Valhalla](https://github.com/valhalla/valhalla) pedestrian routing (the public OpenStreetMap demo by default, `ROUTING_URL` for your own) for street-level tour legs
 - [Anthropic Claude](https://www.anthropic.com) (Haiku) for optional tour narration
 
 ## Getting started
@@ -51,21 +58,25 @@ cp .env.example .env.local
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `NEXT_PUBLIC_BASEMAP_STYLE` | No | Map tile style URL. Defaults to the OpenFreeMap Liberty style. |
+| `NEXT_PUBLIC_BASEMAP_STYLE` | No | Map tile style URL. Defaults to the OpenFreeMap Liberty style; other OpenMapTiles styles get the Detour colours and 3D buildings too. |
+| `NEXT_PUBLIC_TERRAIN_TILES` | No | Terrarium-encoded elevation tile URL template. Defaults to the public Mapzen tiles on AWS; set it empty to switch terrain off. |
 | `ANTHROPIC_API_KEY` | No | Server-side key enabling AI tour narration. Without it, tours still work, just without narration. **Never** prefix this with `NEXT_PUBLIC_`. |
+| `ROUTING_URL` | No | A Valhalla `/route` endpoint for walking routes between stops. Defaults to the public OpenStreetMap demo server (fine for development, not for traffic). Without routing, tours fall back to straight lines. |
+| `ROUTING_MAX_LOCATIONS` | No | Locations per routing request; the demo server allows 10. Longer tours are routed in overlapping windows. |
 
 ## Project structure
 
 ```
 app/
   api/wikipedia/   Wikipedia geosearch + summary proxy
+  api/route/       Valhalla walking-route proxy (chunked, cached)
   api/tour/        Claude-powered tour narration
   page.tsx         Map explorer
   tour/            Tour viewer
 components/        Map, article, tour and control UI
 components/ui/     EasyUI primitives (button, dock, search bar, select, sheet, skeleton, stepper, 404…) skinned to DESIGN.md
 hooks/             Small client hooks (media queries)
-lib/               Geo math, Wikipedia and Nominatim clients, sidequests, tour rules, motion tokens
+lib/               Basemap theme and 3D helpers, geo math, path math, routing, Wikipedia and Nominatim clients, sidequests, tour rules, motion tokens
 types/             Shared TypeScript types
 DESIGN.md          Design system; tokens are normative (sidecar in .impeccable/design.json)
 ```
@@ -97,4 +108,4 @@ The app is configured for [Vercel](https://vercel.com) (see `vercel.json`) and a
 ---
 
 Content sourced from Wikipedia under [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/).
-Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors; tiles by OpenFreeMap.
+Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors; tiles by OpenFreeMap. Terrain tiles by [Mapzen](https://github.com/tilezen/joerd/blob/master/docs/attribution.md) on AWS Open Data.

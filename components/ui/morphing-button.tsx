@@ -31,6 +31,8 @@ export interface MorphingButtonProps extends Omit<HTMLMotionProps<'button'>, 'ch
   successIcon?: React.ReactNode
   /** Colour the success icon in Success green; inherits the text colour otherwise */
   successTone?: 'inherit' | 'success'
+  /** Classes for the text, e.g. to hide it at narrow widths (give the button an aria-label then) */
+  labelClassName?: string
   errorIcon?: React.ReactNode
   className?: string
 }
@@ -47,6 +49,7 @@ export const MorphingButton: React.FC<MorphingButtonProps> = ({
   idleIcon,
   successIcon = <Check size={16} aria-hidden="true" />,
   successTone = 'inherit',
+  labelClassName,
   errorIcon = <AlertCircle size={16} aria-hidden="true" />,
   disabled = false,
   className,
@@ -84,7 +87,7 @@ export const MorphingButton: React.FC<MorphingButtonProps> = ({
           className={cn('flex items-center gap-2', state.className)}
         >
           {state.icon && <span className={cn('shrink-0', status === 'success' && successTone === 'success' && 'text-success')}>{state.icon}</span>}
-          <span>{state.text}</span>
+          <span className={labelClassName}>{state.text}</span>
         </motion.span>
       </AnimatePresence>
     </motion.button>

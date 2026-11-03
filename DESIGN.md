@@ -198,6 +198,7 @@ Every animation reads its curve from `lib/motion-tokens.ts`, so EasyUI component
 - **Sheet** (380, 38, 0.9): the place panel slides and settles; a drag past 96px or a quick flick dismisses it.
 - **Ease-out expo** (`cubic-bezier(0.22, 1, 0.36, 1)`, 200 to 500 ms): opacity and colour transitions, the intro's exit.
 - **Camera**: 600 ms fly-to, zero under reduced motion.
+- **Preview walk**: the camera travels the routed walk at about 32 m/s, so a whole tour plays in 12 to 45 seconds, with a 1.4 s glide down to the start; the bearing follows the street 35 m ahead with a 7% lerp per frame so turns are gentle.
 
 A `MotionConfig` at the root honours `prefers-reduced-motion`: transforms and layout animations become instant while fades stay, so nothing appears without a cue. The magnetic Plan tour button holds still for those visitors.
 
@@ -254,7 +255,12 @@ The tour's stop list. 28px numbered indicators sit beside each card, joined by a
 - **Tooltips:** Ink pill, Surface text, 12px, springing in from the side they belong to; shown on hover and on keyboard focus.
 
 ### Map
-Light "Liberty" basemap. Article pins are 7px Marker Orange circles with a 2px white stroke; clusters are Deep Marker circles with white tabular counts; the selected pin grows and gains a soft orange halo. Tour stops are 28px numbered markers in Marker Orange with Ink numerals. The attribution control stays visible in compact form.
+The basemap is OpenFreeMap's "Liberty" data dressed as the notebook (`lib/basemap.ts`): Sunken land, white streets with Line Strong casings, warm cream main roads, soft blue-grey water, sage parks, Ink place names and Ink 2 street names on Paper halos. Buildings are extruded from their real heights in warm greys (`#f0ede8` at ground level to `#d3cec6` at 120 m) under a soft warm light, with a Paper sky at the horizon and real terrain from the Terrarium elevation tiles. Zoomed right out the map becomes a globe. Both maps open in 3D; a dock control (Building2 icon, `aria-pressed`) lays the explore map flat and facing north, and drops the extrusions and terrain with it. A compass pill (36px, Surface, Line border, Marker Orange needle) sits top-right on both maps; the tour map's stack adds zoom. The device's position is drawn as "you are here": a 7px Ink dot with a 3px Surface ring that keeps its size at any pitch, over a faint Ink disc the size of the fix's accuracy.
+
+Article pins are 7px Marker Orange circles with a 2px white stroke that keep their size at any pitch; clusters are Deep Marker circles with white tabular counts; the selected pin grows and gains a soft orange halo. The search circle and the planned route sit under the buildings so they occlude them like real streets. Tour stops are 28px numbered markers in Marker Orange with Ink numerals. The attribution control stays visible in compact form. The search circle follows a pan and settles after inertia; a zoom never moves it, so the pins on screen stay put while the visitor looks closer or wider. While a new search runs, or if it fails, the previous places stay on the map.
+
+### Tour map
+The tour is drawn as a model of the streets. The camera sits at 58° over the shared notebook basemap's extrusions and terrain with a Paper sky behind them; a dock control drops it to 2D. The route follows the streets, a 3.5px Marker Orange line over a 7px Surface casing drawn under the buildings so they occlude it like real corners; while routing is pending or unavailable it falls back to a 2.5px dashed line as the crow flies. Leg distances and minutes come from the routed walk, so the trail and the header totals describe the pavement, not the map. **Preview walk** glides the camera down to the start and travels the route at 62° and zoom 17, turning with the streets and lighting each stop's card and trail ring as it passes; any drag, scroll or pinch hands the camera back. Under reduced motion the preview steps from stop to stop instead of travelling.
 
 ### Not found
 The 404 page keeps the illustration from EasyUI, redrawn in the notebook: a Marker Orange card, a Paper "404", a paper folder that lifts on hover and a Deep Marker cross that spins in, with pointer parallax on desktop. Below it a focused heading, one line of help, the path in a Sunken chip and the primary and secondary buttons.

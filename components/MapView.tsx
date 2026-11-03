@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import type { WikiArticle, LatLng } from '@/types'
+import type { WikiArticle, LatLng, UserLocation } from '@/types'
 import type { MapControls } from './Map'
-import { getUserLocation } from '@/lib/geo'
+import type { ViewMode } from '@/lib/basemap'
+import { getUserLocation, watchUserLocation } from '@/lib/geo'
 import { fetchNearby, fetchSummary } from '@/lib/wikipedia'
 import { LONDON_CENTER, RADIUS_DEFAULT } from '@/lib/constants'
 import ArticleList from './ArticleList'
@@ -51,9 +52,12 @@ export default function MapView() {
   const [activeSidequest, setActiveSidequest] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [view, setView] = useState<ViewMode>('3d')
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null)
 
   const debouncedRadius = useDebounce(radius, 400)
   const fetchedRef = useRef<string>('')
+  const requestRef = useRef(0)
   const mapControlsRef = useRef<MapControls | null>(null)
 
   const updateUrl = useCallback(
@@ -78,13 +82,19 @@ export default function MapView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // The device's position stays on the map as "you are here" while the visitor walks
+  useEffect(() => watchUserLocation(setUserLocation), [])
+
   useEffect(() => {
     const key = `${center.lat.toFixed(4)},${center.lng.toFixed(4)},${debouncedRadius}`
     if (fetchedRef.current === key) return
     fetchedRef.current = key
+    const request = ++requestRef.current
     setLoading(true)
     fetchNearby(center.lat, center.lng, debouncedRadius).then((arts) => {
-      setArticles(arts)
+      if (request !== requestRef.current) return // a newer search is on its way
+      // A failed lookup keeps the places already on screen rather than clearing them
+      if (arts) setArticles(arts)
       setLoading(false)
     })
     updateUrl(center.lat, center.lng, debouncedRadius)
@@ -169,6 +179,8 @@ export default function MapView() {
           articles={articles}
           selectedId={selectedArticle?.pageid ?? null}
           flyToTarget={geoCenter}
+          view={view}
+          userLocation={userLocation}
           onArticleSelect={handleArticleSelect}
           onMapMove={handleMapMove}
           onReady={handleMapReady}
@@ -182,6 +194,8 @@ export default function MapView() {
           lng={center.lng}
           radius={radius}
           tourStopIds={tourStopIds}
+          view={view}
+          onViewChange={setView}
           onZoomIn={() => mapControlsRef.current?.zoomIn()}
           onZoomOut={() => mapControlsRef.current?.zoomOut()}
           onSurpriseMe={handleArticleSelect}

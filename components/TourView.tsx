@@ -1,17 +1,18 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo, useId } from 'react'
+import { useEffect, useState, useCallback, useMemo, useId, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { ArrowLeft, Link as LinkIcon, Flag, MapPin, Footprints, ExternalLink, Route } from 'lucide-react'
-import type { WikiArticle, TourStop } from '@/types'
-import { computeTourStops, formatDistance } from '@/lib/geo'
+import { ArrowLeft, Link as LinkIcon, Flag, MapPin, Footprints, ExternalLink, Route, Building2, Play, Square } from 'lucide-react'
+import type { WikiArticle, TourStop, RouteLeg, UserLocation } from '@/types'
+import { computeTourStops, formatDistance, watchUserLocation } from '@/lib/geo'
 import { LONDON_CENTER, RADIUS_DEFAULT, RADIUS_MAX } from '@/lib/constants'
 import { reverseGeocode, areaName } from '@/lib/geocode'
 import { decodeStops } from '@/lib/tour'
-import { FloatingDock, DockDivider, dockLinkClasses } from '@/components/ui/small-floating-dock'
+import { fetchWalkingRoute, applyLegsToStops } from '@/lib/routing'
+import { FloatingDock, DockDivider, DockItem, dockLinkClasses } from '@/components/ui/small-floating-dock'
 import { MorphingButton } from '@/components/ui/morphing-button'
 import { AnimatedNumber } from '@/components/ui/animated-number'
 import { StepIndicator, StepConnector, type StepState } from '@/components/ui/stepper'
@@ -19,6 +20,8 @@ import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { buttonClasses } from '@/components/ui/button'
 
 const TourMap = dynamic(() => import('./TourMap'), { ssr: false })
+type TourView3D = '2d' | '3d'
+type FlightState = 'idle' | 'playing'
 
 async function enrichStops(stops: TourStop[]): Promise<TourStop[]> {
   if (stops.length === 0) return []
@@ -56,13 +59,21 @@ export default function TourView() {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [activeStop, setActiveStop] = useState<number | null>(null)
+  const [route, setRoute] = useState<RouteLeg[] | null>(null)
+  const [view, setView] = useState<TourView3D>('3d')
+  const [flight, setFlight] = useState<FlightState>('idle')
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null)
+  const runRef = useRef(0)
   const trailId = useId()
 
   const generate = useCallback(async () => {
+    const run = ++runRef.current
     setLoading(true)
     setStops([])
     setTourName('')
     setActiveStop(null)
+    setRoute(null)
+    setFlight('idle')
 
     const [articles, address] = await Promise.all([
       fetch(`/api/wikipedia?lat=${lat}&lng=${lng}&radius=${radius}`)
@@ -71,17 +82,36 @@ export default function TourView() {
       reverseGeocode(lat, lng, 10),
     ])
 
+    if (run !== runRef.current) return
     setTourName(`${areaName(address)} walking tour`)
     const pool = picked.length > 0 ? articles.filter((a) => picked.includes(a.pageid)) : articles
     const rawStops = computeTourStops(pool, lat, lng, { curated: picked.length > 0 })
     setStops(rawStops)
     setLoading(false)
-    enrichStops(rawStops).then(setStops)
+
+    // Details and street routing arrive independently; each merges into the current stops
+    enrichStops(rawStops).then((enriched) => {
+      if (run !== runRef.current) return
+      setStops((prev) =>
+        enriched.map((e) => {
+          const current = prev.find((p) => p.pageid === e.pageid)
+          return current ? { ...e, distFromPrev: current.distFromPrev, timeFromPrev: current.timeFromPrev } : e
+        })
+      )
+    })
+    fetchWalkingRoute([{ lat, lng }, ...rawStops.map((s) => ({ lat: s.lat, lng: s.lng }))]).then((legs) => {
+      if (run !== runRef.current || !legs) return
+      setRoute(legs)
+      setStops((prev) => applyLegsToStops(prev, legs))
+    })
   }, [lat, lng, radius, picked])
 
   useEffect(() => {
     generate()
   }, [generate])
+
+  // Walking the tour: the device's position stays on the map as "you are here"
+  useEffect(() => watchUserLocation(setUserLocation), [])
 
   useEffect(() => {
     if (tourName) document.title = `${tourName} · Detour`
@@ -108,6 +138,12 @@ export default function TourView() {
   const totalTime = stops.reduce((sum, s) => sum + (s.timeFromPrev ?? 0), 0)
   const activeIndex = stops.findIndex((s) => s.pageid === activeStop)
   const last = stops.length - 1
+  const canPreview = !loading && stops.length >= 2
+
+  const handleFlightProgress = useCallback((index: number) => {
+    setActiveStop((current) => stops[index]?.pageid ?? current)
+  }, [stops])
+  const handleFlightEnd = useCallback(() => setFlight('idle'), [])
 
   const secondaryBtn = buttonClasses({ variant: 'secondary', size: 'md' })
 
@@ -222,25 +258,57 @@ export default function TourView() {
 
       {/* ── Map + floating dock ─────────────────────────── */}
       <div className="relative min-h-0 flex-1">
-        <TourMap stops={stops} center={{ lat, lng }} activeId={activeStop} onSelect={setActiveStop} />
+        <TourMap
+          stops={stops}
+          center={{ lat, lng }}
+          activeId={activeStop}
+          onSelect={setActiveStop}
+          route={route}
+          view={view}
+          flight={flight}
+          onFlightProgress={handleFlightProgress}
+          onFlightEnd={handleFlightEnd}
+          userLocation={userLocation}
+        />
 
         <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 z-20 w-max max-w-[calc(100%-2rem)] -translate-x-1/2">
           <FloatingDock label="Tour actions">
             <Link href={backHref} className={dockLinkClasses}>
               <ArrowLeft size={18} aria-hidden="true" />
-              Back to explore
+              <span className="hidden sm:inline">Back to explore</span>
+              <span className="sm:hidden">Back</span>
             </Link>
+            <DockDivider />
+            <DockItem
+              icon={flight === 'playing' ? <Square /> : <Play />}
+              label={flight === 'playing' ? 'Stop preview' : 'Preview walk'}
+              labelClassName="hidden xs:inline"
+              disabled={!canPreview}
+              active={flight === 'playing'}
+              onClick={() => setFlight((f) => (f === 'playing' ? 'idle' : 'playing'))}
+            />
+            <DockItem
+              icon={<Building2 />}
+              label="3D"
+              hideLabel
+              tooltip
+              aria-pressed={view === '3d'}
+              active={view === '3d'}
+              onClick={() => setView((v) => (v === '3d' ? '2d' : '3d'))}
+            />
             <DockDivider />
             <MorphingButton
               variant="ghost"
               size="nested"
               status={copied ? 'success' : 'idle'}
-              idleText="Copy tour link"
+              idleText="Copy link"
               idleIcon={<LinkIcon size={18} aria-hidden="true" />}
               successText="Copied"
               successTone="success"
+              labelClassName="hidden sm:inline"
+              aria-label="Copy tour link"
               onClick={handleCopyLink}
-              className="min-w-[9rem] px-3 font-medium"
+              className="px-3 font-medium sm:min-w-[6.75rem]"
             />
             <span role="status" className="sr-only">
               {copied ? 'Tour link copied to clipboard' : ''}

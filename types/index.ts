@@ -3,6 +3,11 @@ export interface LatLng {
   lng: number
 }
 
+/** A device position fix; accuracy is the radius in metres, when known */
+export interface UserLocation extends LatLng {
+  accuracy?: number
+}
+
 export interface WikiArticle {
   pageid: number
   title: string
@@ -32,4 +37,14 @@ export interface Sidequest {
   label: string
   icon: SidequestIcon
   keywords: string[]
+}
+
+/** One walking leg between consecutive tour points, along the streets */
+export interface RouteLeg {
+  /** Metres along the streets */
+  distance: number
+  /** Seconds at walking pace */
+  duration: number
+  /** [lng, lat] pairs along the streets */
+  coordinates: [number, number][]
 }

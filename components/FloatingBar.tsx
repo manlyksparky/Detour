@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Minus, Plus, Compass, Dices, Route } from 'lucide-react'
+import { Minus, Plus, Compass, Dices, Route, Building2 } from 'lucide-react'
 import type { WikiArticle } from '@/types'
+import type { ViewMode } from '@/lib/basemap'
 import { encodeStops } from '@/lib/tour'
 import { motionTransitions } from '@/lib/motion-tokens'
 import { FloatingDock, DockItem, DockDivider } from '@/components/ui/small-floating-dock'
@@ -20,6 +21,8 @@ interface FloatingBarProps {
   lng: number
   radius: number
   tourStopIds: number[]
+  view: ViewMode
+  onViewChange: (view: ViewMode) => void
   onZoomIn: () => void
   onZoomOut: () => void
   onSurpriseMe: (article: WikiArticle) => void
@@ -34,6 +37,8 @@ export default function FloatingBar({
   lng,
   radius,
   tourStopIds,
+  view,
+  onViewChange,
   onZoomIn,
   onZoomOut,
   onSurpriseMe,
@@ -121,7 +126,16 @@ export default function FloatingBar({
           onClick={onZoomIn}
           className={compact ? 'hidden' : 'hidden md:inline-flex'}
         />
-        <DockDivider className={compact ? 'hidden' : 'hidden md:block'} />
+        <DockItem
+          icon={<Building2 />}
+          label="3D"
+          hideLabel
+          tooltip
+          aria-pressed={view === '3d'}
+          active={view === '3d'}
+          onClick={() => onViewChange(view === '3d' ? '2d' : '3d')}
+        />
+        <DockDivider />
 
         <DockItem
           ref={toggleRef}

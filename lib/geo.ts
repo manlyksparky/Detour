@@ -1,5 +1,5 @@
 import { LONDON_BOUNDS, LONDON_CENTER } from './constants'
-import type { LatLng, WikiArticle, TourStop } from '@/types'
+import type { LatLng, UserLocation, WikiArticle, TourStop } from '@/types'
 import { isPlaceArticle } from './tour'
 
 export const TOUR_MAX_STOPS = 15
@@ -29,6 +29,26 @@ export function getUserLocation(): Promise<LatLng> {
       { timeout: 5000 }
     )
   })
+}
+
+/**
+ * Follow the device as it moves. Fixes are passed through unclamped so the
+ * map can draw "you are here" wherever that is; the search centre keeps its
+ * own London rule. Returns a function that stops watching.
+ */
+export function watchUserLocation(onFix: (loc: UserLocation) => void): () => void {
+  if (typeof navigator === 'undefined' || !navigator.geolocation) return () => {}
+  const id = navigator.geolocation.watchPosition(
+    (pos) => {
+      const { latitude: lat, longitude: lng, accuracy } = pos.coords
+      onFix({ lat, lng, accuracy })
+    },
+    () => {
+      // denied or unavailable: the map simply has no dot
+    },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
+  )
+  return () => navigator.geolocation.clearWatch(id)
 }
 
 export function haversineDistance(a: LatLng, b: LatLng): number {

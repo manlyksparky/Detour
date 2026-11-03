@@ -1,10 +1,11 @@
 import type { WikiArticle } from '@/types'
 
+/** Places near a point, or null when the lookup failed (as opposed to finding none). */
 export async function fetchNearby(
   lat: number,
   lng: number,
   radius: number
-): Promise<WikiArticle[]> {
+): Promise<WikiArticle[] | null> {
   const params = new URLSearchParams({
     lat: lat.toString(),
     lng: lng.toString(),
@@ -12,10 +13,11 @@ export async function fetchNearby(
   })
   try {
     const res = await fetch(`/api/wikipedia?${params}`)
-    if (!res.ok) return []
-    return res.json()
+    if (!res.ok) return null
+    const data = await res.json()
+    return Array.isArray(data) ? data : null
   } catch {
-    return []
+    return null
   }
 }
 

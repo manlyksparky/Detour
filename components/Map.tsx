@@ -3,9 +3,24 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { WikiArticle, LatLng, TourStop } from '@/types'
+import type { WikiArticle, LatLng, TourStop, UserLocation } from '@/types'
 import { DEFAULT_ZOOM } from '@/lib/constants'
 import { cameraDuration } from '@/lib/motion-tokens'
+import {
+  BASEMAP,
+  BUILDINGS_LAYER,
+  type ViewMode,
+  applyNotebookTheme,
+  applyPaperSky,
+  applyWarmLight,
+  basemapTextFont,
+  enableGlobe,
+  ensureBuildings,
+  firstSymbolLayerId,
+  setBuildingsVisible,
+  setTerrainEnabled,
+  syncUserLocation,
+} from '@/lib/basemap'
 
 export interface MapControls {
   zoomIn: () => void
@@ -21,19 +36,21 @@ interface MapProps {
   selectedId: number | null
   tourStops?: TourStop[]
   flyToTarget?: LatLng | null
+  /** '3d' tilts the camera over extruded buildings and terrain */
+  view: ViewMode
+  /** The device's latest position fix, drawn as "you are here" */
+  userLocation?: UserLocation | null
   onArticleSelect: (article: WikiArticle) => void
   onMapMove: (lat: number, lng: number) => void
   onReady?: (controls: MapControls) => void
 }
 
-const BASEMAP =
-  process.env.NEXT_PUBLIC_BASEMAP_STYLE ??
-  'https://tiles.openfreemap.org/styles/liberty'
-
 const ACCENT = '#e05c1a'
 const ACCENT_STRONG = '#c2410c'
 /** Zoom at which every pin stands alone; clusters exist below it. */
 const UNCLUSTERED_ZOOM = 17
+/** Gentler than the tour's 58°: the visitor is scanning pins, not walking a street */
+const PITCH_3D = 55
 
 function webglSupported(): boolean {
   try {
@@ -86,6 +103,8 @@ export default function Map({
   selectedId,
   tourStops,
   flyToTarget,
+  view,
+  userLocation = null,
   onArticleSelect,
   onMapMove,
   onReady,
@@ -97,12 +116,15 @@ export default function Map({
 
   const articlesRef = useRef(articles)
   const selectedIdRef = useRef(selectedId)
+  const viewRef = useRef(view)
+  const userLocationRef = useRef(userLocation)
   const onArticleSelectRef = useRef(onArticleSelect)
   const onMapMoveRef = useRef(onMapMove)
   const onReadyRef = useRef(onReady)
 
   useEffect(() => { articlesRef.current = articles }, [articles])
   useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
+  useEffect(() => { userLocationRef.current = userLocation }, [userLocation])
   useEffect(() => { onArticleSelectRef.current = onArticleSelect }, [onArticleSelect])
   useEffect(() => { onMapMoveRef.current = onMapMove }, [onMapMove])
   useEffect(() => { onReadyRef.current = onReady }, [onReady])
@@ -173,6 +195,8 @@ export default function Map({
         style: BASEMAP,
         center: [center.lng, center.lat],
         zoom,
+        pitch: view === '3d' ? PITCH_3D : 0,
+        maxPitch: 70,
         attributionControl: false,
       })
     } catch {
@@ -181,20 +205,36 @@ export default function Map({
     }
 
     mapRef.current = map
-    // Desktop has free space top-right; phones keep it bottom-right above the controls (see globals.css).
-    // Re-place it when the breakpoint flips (zoom, rotation, window resize).
-    const attribution = new maplibregl.AttributionControl({ compact: true })
-    const wide = window.matchMedia('(min-width: 768px)')
-    const placeAttribution = () => {
-      if (map.hasControl(attribution)) map.removeControl(attribution)
-      map.addControl(attribution, wide.matches ? 'top-right' : 'bottom-right')
+    if (process.env.NODE_ENV !== 'production') {
+      // lets scripted checks inspect the camera; stripped from production builds
+      ;(window as unknown as { __detourMap?: maplibregl.Map }).__detourMap = map
     }
-    placeAttribution()
-    wide.addEventListener('change', placeAttribution)
+    // Desktop has free space top-right; phones keep the credits bottom-right above the
+    // controls (see globals.css). The compass stays top-right. Both are re-placed when
+    // the breakpoint flips (zoom, rotation, window resize) so their order holds.
+    const attribution = new maplibregl.AttributionControl({ compact: true })
+    const compass = new maplibregl.NavigationControl({ showZoom: false, showCompass: true, visualizePitch: true })
+    const wide = window.matchMedia('(min-width: 768px)')
+    const placeControls = () => {
+      if (map.hasControl(attribution)) map.removeControl(attribution)
+      if (map.hasControl(compass)) map.removeControl(compass)
+      map.addControl(attribution, wide.matches ? 'top-right' : 'bottom-right')
+      map.addControl(compass, 'top-right')
+    }
+    placeControls()
+    wide.addEventListener('change', placeControls)
 
-    // Only propagate user-initiated pans; ignore programmatic flyTo moveend events
-    map.on('moveend', (e) => {
-      if (!(e as unknown as { originalEvent?: Event }).originalEvent) return
+    // The search centre follows the visitor's pans and settles after inertia.
+    // Zooming (wheel, pinch, double-click) around an off-centre point also moves
+    // the centre, but must not re-search: the pins the visitor is looking at
+    // would be swapped for the 50 nearest to the new centre.
+    let panning = false
+    map.on('dragstart', () => {
+      panning = true
+    })
+    map.on('moveend', () => {
+      if (!panning) return
+      panning = false
       const c = map.getCenter()
       onMapMoveRef.current(c.lat, c.lng)
     })
@@ -202,24 +242,36 @@ export default function Map({
     map.on('load', () => {
       styleLoadedRef.current = true
 
-      // Reuse the basemap's own font stack so cluster counts always have glyphs
-      const styleLayers = map.getStyle().layers as Array<{ type: string; layout?: Record<string, unknown> }>
-      const symbolLayer = styleLayers.find((l) => l.type === 'symbol' && l.layout && 'text-font' in l.layout)
-      const textFont = (symbolLayer?.layout?.['text-font'] as string[] | undefined) ?? ['Noto Sans Regular']
+      // Dress the basemap as the notebook: paper land, ink labels, warm extrusions
+      applyNotebookTheme(map)
+      ensureBuildings(map)
+      applyPaperSky(map)
+      applyWarmLight(map)
+      enableGlobe(map)
+      const three = viewRef.current === '3d'
+      setBuildingsVisible(map, three)
+      setTerrainEnabled(map, three)
+
+      const textFont = basemapTextFont(map)
+      // Ground geometry sits under the buildings so they occlude it like real streets
+      const groundBefore = map.getLayer(BUILDINGS_LAYER) ? BUILDINGS_LAYER : firstSymbolLayerId(map)
 
       map.addSource('radius-circle', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       })
-      map.addLayer({
-        id: 'radius-fill',
-        type: 'fill',
-        source: 'radius-circle',
-        paint: {
-          'fill-color': 'rgba(224, 92, 26, 0.06)',
-          'fill-outline-color': 'rgba(224, 92, 26, 0.35)',
+      map.addLayer(
+        {
+          id: 'radius-fill',
+          type: 'fill',
+          source: 'radius-circle',
+          paint: {
+            'fill-color': 'rgba(224, 92, 26, 0.06)',
+            'fill-outline-color': 'rgba(224, 92, 26, 0.35)',
+          },
         },
-      })
+        groundBefore
+      )
 
       map.addSource('articles', {
         type: 'geojson',
@@ -233,19 +285,23 @@ export default function Map({
         data: { type: 'FeatureCollection', features: [] },
       })
 
-      map.addLayer({
-        id: 'tour-line',
-        type: 'line',
-        source: 'tour-route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: {
-          'line-color': ACCENT,
-          'line-width': 2.5,
-          'line-opacity': 0.8,
-          'line-dasharray': [2, 2],
+      map.addLayer(
+        {
+          id: 'tour-line',
+          type: 'line',
+          source: 'tour-route',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: {
+            'line-color': ACCENT,
+            'line-width': 2.5,
+            'line-opacity': 0.8,
+            'line-dasharray': [2, 2],
+          },
         },
-      })
+        groundBefore
+      )
 
+      // Pins float above the buildings and keep their size at every pitch
       map.addLayer({
         id: 'clusters',
         type: 'circle',
@@ -256,6 +312,7 @@ export default function Map({
           'circle-radius': ['step', ['get', 'point_count'], 14, 10, 18, 30, 22],
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff',
+          'circle-pitch-scale': 'viewport',
         },
       })
       map.addLayer({
@@ -282,6 +339,7 @@ export default function Map({
           'circle-color': 'rgba(224, 92, 26, 0.18)',
           'circle-stroke-width': 1.5,
           'circle-stroke-color': 'rgba(224, 92, 26, 0.5)',
+          'circle-pitch-scale': 'viewport',
         },
       })
       map.addLayer({
@@ -294,8 +352,11 @@ export default function Map({
           'circle-color': ACCENT,
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff',
+          'circle-pitch-scale': 'viewport',
         },
       })
+
+      syncUserLocation(map, userLocationRef.current)
 
       map.on('click', 'articles-circles', (e) => {
         if (!e.features?.[0]) return
@@ -335,7 +396,7 @@ export default function Map({
     })
 
     return () => {
-      wide.removeEventListener('change', placeAttribution)
+      wide.removeEventListener('change', placeControls)
       styleLoadedRef.current = false
       map.remove()
     }
@@ -362,6 +423,25 @@ export default function Map({
     if (!map || !styleLoadedRef.current) return
     setTourData(map, tourStops)
   }, [tourStops, setTourData])
+
+  // "You are here" follows the device
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !styleLoadedRef.current) return
+    syncUserLocation(map, userLocation)
+  }, [userLocation])
+
+  // 2D / 3D: tilt over the buildings and terrain, or lie flat facing north
+  useEffect(() => {
+    const changed = viewRef.current !== view
+    viewRef.current = view
+    const map = mapRef.current
+    if (!map || !styleLoadedRef.current || !changed) return
+    const three = view === '3d'
+    setBuildingsVisible(map, three)
+    setTerrainEnabled(map, three)
+    map.easeTo({ pitch: three ? PITCH_3D : 0, bearing: 0, duration: cameraDuration(700) })
+  }, [view])
 
   // Fly to geolocation or a searched place; never on user pan
   useEffect(() => {

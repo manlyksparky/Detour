@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-30T18:10:00Z",
+  "generatedAt": "2026-11-02T00:40:00Z",
   "title": "Design System: Detour",
   "extensions": {
     "colorMeta": {
@@ -279,6 +279,16 @@
         "name": "input-clear-dissolve",
         "value": "out 400ms / in 400ms / 12px / blur 2px, streak 1000ms",
         "purpose": "transitions.dev recipe on the search field's clear control; tokens --clear-* and --glow-* in globals.css. Instant under reduced motion."
+      },
+      {
+        "name": "preview-walk",
+        "value": "~32 m/s along the routed path, 12–45 s, 62° pitch, zoom 17.2",
+        "purpose": "The tour map flies the camera along the streets; bearing follows the street 35 m ahead. Steps stop to stop under reduced motion; any gesture hands the camera back."
+      },
+      {
+        "name": "notebook-3d",
+        "value": "explore 55° / tour 58° pitch, extrusions #f0ede8→#d3cec6 by height under a soft warm light, terrain, Paper sky, globe when zoomed out",
+        "purpose": "Both maps at rest, on the Liberty data re-dressed to the notebook (lib/basemap.ts). A dock control drops a map to 2D, flat and facing north; a compass pill resets rotation."
       }
     ],
     "breakpoints": [

@@ -230,6 +230,45 @@ p {
   outline-offset: 2px;
 }
 
+/* ─── Map controls: compass, and zoom on the tour ──────── */
+.maplibregl-ctrl-group {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-line);
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group:not(:empty) {
+  box-shadow: var(--shadow-raised) !important;
+}
+.maplibregl-ctrl-group button {
+  width: 36px !important;
+  height: 36px !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--color-line) !important;
+}
+@media (hover: hover) {
+  .maplibregl-ctrl button:not(:disabled):hover {
+    background-color: var(--color-paper) !important;
+  }
+}
+.maplibregl-ctrl button:not(:disabled):active {
+  background-color: var(--color-sunken) !important;
+}
+.maplibregl-ctrl-group button:focus:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-accent-strong) !important;
+}
+/* Ink glyphs instead of MapLibre's grey; the needle points north in Marker Orange */
+.maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%231c1917' viewBox='0 0 29 29'%3E%3Cpath d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5'/%3E%3C/svg%3E") !important;
+}
+.maplibregl-ctrl button.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%231c1917' viewBox='0 0 29 29'%3E%3Cpath d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13z'/%3E%3C/svg%3E") !important;
+}
+.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath fill='%23e05c1a' d='m10.5 14 4-8 4 8z'/%3E%3Cpath fill='%23d6d3d1' d='m10.5 16 4 8 4-8z'/%3E%3C/svg%3E") !important;
+}
+
 /* ─── Tour numbered map markers ─────────────────────────── */
 .tour-marker {
   appearance: none;
